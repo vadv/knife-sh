@@ -21,3 +21,11 @@ knife-sh HOSTS COMMAND (options)
 
 You can also specify the long-attributes in the config file: ~/.knife-sh.rc in format like ~/.ssh/config ('key = value' or 'key value')
 ```
+
+## Example config
+```
+chef-certificate /Users/username/.chef/admin.pem
+chef-client admin
+chef-attribute ipaddress
+ssh-user root
+```

@@ -16,6 +16,9 @@ func (config *Config) fetchHostsFromChef(q string) error {
 		data, err := ioutil.ReadFile(config.defaultchefKeyPath)
 		if err == nil {
 			config.chefKey = string(data)
+		} else {
+			fmt.Fprintf(os.Stderr, "Chef key file access error: %s\n", err.Error())
+			os.Exit(1)
 		}
 	}
 
