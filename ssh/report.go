@@ -19,16 +19,16 @@ func report(hosts []*hostState) {
 		count++
 		if h.startedAt == nil {
 			notStarted++
-			fmt.Printf("%s\t\t%v\n", h.hostname, "< not started >")
+			fmt.Fprintf(os.Stderr, "%s\t\t%v\n", h.hostname, "< not started >")
 			continue
 		}
 		if h.connectedAt == nil {
 			connFailed++
-			fmt.Printf("%s\t\t%v\t%v\n", h.hostname, h.err, "< not connected >")
+			fmt.Fprintf(os.Stderr, "%s\t\t%v\t%v\n", h.hostname, h.err, "< not connected >")
 			continue
 		}
 		if h.endedAt == nil {
-			fmt.Printf("%s\t\t%v,\t< time %v >\n", h.hostname, h.err, h.connectedAt.Sub(*h.startedAt))
+			fmt.Fprintf(os.Stderr, "%s\t\t%v,\t< time %v >\n", h.hostname, h.err, h.connectedAt.Sub(*h.startedAt))
 			execFailed++
 			continue
 		}
@@ -36,7 +36,7 @@ func report(hosts []*hostState) {
 			fmt.Printf("%s\t\t%v,\t< time %v >\n", h.hostname, "< successfully completed >", h.endedAt.Sub(*h.startedAt))
 			succ++
 		} else {
-			fmt.Printf("%s\t\t%v,\t< time: %v >\n", h.hostname, h.err, h.endedAt.Sub(*h.startedAt))
+			fmt.Fpintf(os.Stderr, "%s\t\t%v,\t< time: %v >\n", h.hostname, h.err, h.endedAt.Sub(*h.startedAt))
 		}
 	}
 

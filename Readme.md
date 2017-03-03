@@ -1,6 +1,7 @@
 ## Install
 ```
-go get -u github.com/vadv/knife-sh
+GOPATH=/tmp/gopath go get -u github.com/vadv/knife-sh
+sudo cp /tmp/gopath/bin/knife-sh /usr/local/bin/knife-sh
 ```
 
 ## Howto use

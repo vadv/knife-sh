@@ -68,6 +68,10 @@ func (config *Config) buildHosts() {
 	if err != nil {
 		if strings.Index(config.hostSource, `:`) != -1 {
 			err = config.fetchHostsFromChef(config.hostSource)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Chef search error: %s\n", err.Error())
+				os.Exit(1)
+			}
 		}
 	}
 	if err != nil {

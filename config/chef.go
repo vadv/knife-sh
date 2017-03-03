@@ -26,10 +26,6 @@ func (config *Config) fetchHostsFromChef(q string) error {
 		BaseURL: config.chefUrl,
 	})
 	if err != nil {
-		if config.chefKey != `` {
-			fmt.Fprintf(os.Stderr, "Can't make connection with chef: %s\n", err.Error())
-			os.Exit(1)
-		}
 		return err
 	}
 
