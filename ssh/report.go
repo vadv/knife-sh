@@ -36,7 +36,7 @@ func report(hosts []*hostState) {
 			fmt.Printf("%s\t\t%v,\t< time %v >\n", h.hostname, "< successfully completed >", h.endedAt.Sub(*h.startedAt))
 			succ++
 		} else {
-			fmt.Fpintf(os.Stderr, "%s\t\t%v,\t< time: %v >\n", h.hostname, h.err, h.endedAt.Sub(*h.startedAt))
+			fmt.Fprintf(os.Stderr, "%s\t\t%v,\t< time: %v >\n", h.hostname, h.err, h.endedAt.Sub(*h.startedAt))
 		}
 	}
 
