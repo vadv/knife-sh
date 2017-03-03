@@ -67,5 +67,10 @@ func (config *Config) fetchHostsFromChef(q string) error {
 		config.hosts = append(config.hosts, fmt.Sprintf("%v", host))
 	}
 
+	fmt.Fprintf(os.Stderr, "Chef search return %d items\n", len(config.hosts))
+	if len(config.hosts) == 0 {
+		os.Exit(1)
+	}
+
 	return nil
 }
