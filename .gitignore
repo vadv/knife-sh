@@ -1,0 +1,9 @@
+bin
+pkg
+assets
+rpm-tmp.*
+*.exe
+*.rpm
+rpm/BUILD/*
+rpm/SOURCES/*
+src/github.com/vadv/knife-sh
