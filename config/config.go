@@ -28,11 +28,11 @@ type Config struct {
 
 func New() *Config {
 	config := getDefaultConfig()
-	config.parseCli()
 	if err := config.parseFile(config.defaultConfigPath); err != nil {
 		fmt.Fprintf(os.Stderr, "Can't parse config `%s`: %s\n", config.defaultConfigPath, err.Error())
 		os.Exit(1)
 	}
+	config.parseCli()
 	config.buildHosts()
 	return config
 }
@@ -47,7 +47,7 @@ func getDefaultConfig() *Config {
 		chefUrl:            "https://chef.itv.restr.im/organizations/restream/",
 		timeoutExec:        0,
 		timeoutSshConnect:  10,
-		concurrency:        10,
+		concurrency:        100,
 		hosts:              make([]string, 0),
 		defaultSshKeyPath:  filepath.Join(home, ".ssh", "id_rsa"),
 		defaultchefKeyPath: filepath.Join(home, ".chef", fmt.Sprintf("%s.pem", user)),
