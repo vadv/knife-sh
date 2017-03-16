@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/go-chef/chef"
+	"github.com/vadv/chef"
 )
 
 // load hosts from chef

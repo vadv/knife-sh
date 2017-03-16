@@ -1,6 +1,6 @@
-[submodule "src/github.com/go-chef/chef"]
-	path = src/github.com/go-chef/chef
-	url = https://github.com/go-chef/chef.git
 [submodule "src/golang.org/x/crypto"]
 	path = src/golang.org/x/crypto
 	url = https://go.googlesource.com/crypto
+[submodule "src/github.com/vadv/chef"]
+	path = src/github.com/vadv/chef
+	url = https://github.com/vadv/chef
