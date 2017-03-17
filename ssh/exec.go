@@ -66,7 +66,9 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 
 	// здесь получили сессию, подготовимся для запуска
 	var stdoutPipe, stderrPipe io.Reader
-	session.RequestPty("xterm", 80, 40, ssh.TerminalModes{ssh.ECHO: 0})
+	if h.err = session.RequestPty("xterm", 80, 40, ssh.TerminalModes{ssh.ECHO: 0}); h.err != nil {
+		return
+	}
 	if stdoutPipe, h.err = session.StdoutPipe(); h.err != nil {
 		return
 	}
