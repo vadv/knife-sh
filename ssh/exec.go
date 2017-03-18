@@ -100,6 +100,7 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 	endedAt := time.Now()
 	h.endedAt = &endedAt
 
+	time.Sleep(100 * time.Millisecond)
 	return
 }
 
