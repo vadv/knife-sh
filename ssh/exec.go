@@ -61,8 +61,8 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 	connectedAt := time.Now()
 	h.connectedAt = &connectedAt
 
-	defer client.Close()
 	defer session.Close()
+	defer client.Close()
 
 	// здесь получили сессию, подготовимся для запуска
 	var stdoutPipe, stderrPipe io.Reader
