@@ -34,7 +34,7 @@ type config interface {
 
 func Run(c config) {
 
-	sshConfig := &ssh.ClientConfig{User: c.SshUser()}
+	sshConfig := &ssh.ClientConfig{User: c.SshUser(), HostKeyCallback: ssh.InsecureIgnoreHostKey()}
 	if c.SshKeyContent() == `` {
 		fmt.Fprintf(os.Stderr, "Connect via ssh-agent...\n")
 		sshConfig.Auth = []ssh.AuthMethod{ssh.PublicKeys(makeSignersFromAgent()...)}
