@@ -12,18 +12,19 @@ import (
 )
 
 type hostState struct {
-	hostname       string
-	command        string
-	timeoutConnect int64
-	timeoutExec    int64
-	startedAt      *time.Time
-	connectedAt    *time.Time
-	endedAt        *time.Time
-	err            error
+	connectionAddress string
+	visibleHostName   string
+	command           string
+	timeoutConnect    int64
+	timeoutExec       int64
+	startedAt         *time.Time
+	connectedAt       *time.Time
+	endedAt           *time.Time
+	err               error
 }
 
 type config interface {
-	Hosts() []string
+	Hosts() map[string]string
 	ConnectTimeout() int64
 	ExecTimeout() int64
 	SshKeyContent() string
@@ -44,12 +45,17 @@ func Run(c config) {
 	}
 
 	hosts := make([]*hostState, 0)
-	for _, h := range c.Hosts() {
+	for connectionAddress, visibleHostName := range c.Hosts() {
+		formatedVisibleHostName := connectionAddress
+		if formatedVisibleHostName != visibleHostName {
+			formatedVisibleHostName = fmt.Sprintf("%s <%s>", visibleHostName, connectionAddress)
+		}
 		hosts = append(hosts, &hostState{
-			hostname:       h,
-			command:        c.Command(),
-			timeoutExec:    c.ExecTimeout(),
-			timeoutConnect: c.ConnectTimeout()})
+			connectionAddress: connectionAddress,
+			visibleHostName:   formatedVisibleHostName,
+			command:           c.Command(),
+			timeoutExec:       c.ExecTimeout(),
+			timeoutConnect:    c.ConnectTimeout()})
 	}
 
 	// настраиваем вывод

@@ -32,7 +32,7 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 	started := time.Now()
 	h.startedAt = &started
 	go func() {
-		client, err = getSshClient(h.hostname)
+		client, err = getSshClient(h.connectionAddress)
 		if err != nil {
 			doneSession <- err
 			return
@@ -75,8 +75,8 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 	if stderrPipe, err = session.StderrPipe(); err != nil {
 		return
 	}
-	go pipeFeeder(h.hostname+"\t\t", stdoutPipe, stdout)
-	go pipeFeeder(h.hostname+"\t\t", stderrPipe, stderr)
+	go pipeFeeder(h.visibleHostName+"\t\t", stdoutPipe, stdout)
+	go pipeFeeder(h.visibleHostName+"\t\t", stderrPipe, stderr)
 
 	// стартуем комманду
 	if h.err = session.Start(h.command); h.err != nil {

@@ -35,7 +35,8 @@ func (config *Config) fetchHostsFromChef(q string) error {
 	fmt.Printf("Start chef `%s` search query: `%s`\n", config.chefUrl, q)
 
 	part := make(map[string]interface{})
-	part["attr"] = []string{config.chefAttr}
+	part["chefAttr"] = []string{config.chefAttr}
+	part["fqdn"] = []string{"fqdn"}
 
 	res, err := client.Search.PartialExec("node", q, part)
 	if err != nil {
@@ -43,7 +44,7 @@ func (config *Config) fetchHostsFromChef(q string) error {
 	}
 
 	for _, row := range res.Rows {
-		// row = {"url": "http://chef/node", "data": {"attr": "<response>"}}
+		// row = {"url": "http://chef/node", "data": {"chefAttr": "<response>"}}
 		line, ok := row.(map[string]interface{})
 		if !ok {
 			fmt.Fprintf(os.Stderr, "Bad chef response #1: %#v\n", line)
@@ -59,12 +60,17 @@ func (config *Config) fetchHostsFromChef(q string) error {
 			fmt.Fprintf(os.Stderr, "Bad chef response #3: %#v\n", dataRaw)
 			os.Exit(1)
 		}
-		host, completed := data["attr"]
+		chefAttr, completed := data["chefAttr"]
 		if !completed {
-			fmt.Fprintf(os.Stderr, "Empty attribute from chef: %#v\n", data)
+			fmt.Fprintf(os.Stderr, "Empty chefAttr from chef: %#v\n", data)
 			os.Exit(1)
 		}
-		config.hosts = append(config.hosts, fmt.Sprintf("%v", host))
+		fqdn, completed := data["fqdn"]
+		if !completed {
+			fmt.Fprintf(os.Stderr, "Empty fqdn from chef: %#v\n", data)
+			os.Exit(1)
+		}
+		config.hosts[fmt.Sprintf("%v", chefAttr)] = fmt.Sprintf("%v", fqdn)
 	}
 
 	fmt.Fprintf(os.Stderr, "Chef search return %d items\n", len(config.hosts))

@@ -17,7 +17,7 @@ func (config *Config) buildHosts() {
 			if h == `` {
 				continue
 			}
-			config.hosts = append(config.hosts, strings.Trim(h, ` `))
+			config.hosts[h] = h
 		}
 	}
 

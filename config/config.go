@@ -14,7 +14,7 @@ type Config struct {
 	concurrency       int64
 	timeoutSshConnect int64
 	timeoutExec       int64
-	hosts             []string
+	hosts             map[string]string // connectionAddress:visibleName
 	// chef settings
 	chefClient, chefKey string
 	chefUrl, chefAttr   string
@@ -48,7 +48,7 @@ func getDefaultConfig() *Config {
 		timeoutExec:        0,
 		timeoutSshConnect:  10,
 		concurrency:        100,
-		hosts:              make([]string, 0),
+		hosts:              make(map[string]string, 0),
 		defaultSshKeyPath:  filepath.Join(home, ".ssh", "id_rsa"),
 		defaultchefKeyPath: filepath.Join(home, ".chef", fmt.Sprintf("%s.pem", user)),
 		defaultConfigPath:  filepath.Join(home, ".knife-sh.rc"),

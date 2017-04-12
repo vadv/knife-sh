@@ -1,6 +1,6 @@
 package config
 
-func (c *Config) Hosts() []string {
+func (c *Config) Hosts() map[string]string {
 	return c.hosts
 }
 
