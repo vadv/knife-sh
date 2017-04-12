@@ -2,6 +2,7 @@ package ssh
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/signal"
 	"sync"
@@ -17,6 +18,8 @@ type hostState struct {
 	command           string
 	timeoutConnect    int64
 	timeoutExec       int64
+	scpData           []byte
+	scpDest           string
 	startedAt         *time.Time
 	connectedAt       *time.Time
 	endedAt           *time.Time
@@ -31,6 +34,8 @@ type config interface {
 	SshUser() string
 	Command() string
 	Concurrency() int64
+	SCPSource() string
+	SCPDest() string
 }
 
 func Run(c config) {
@@ -44,6 +49,17 @@ func Run(c config) {
 		sshConfig.Auth = []ssh.AuthMethod{ssh.PublicKeys(makeSignersFromKey(c)...)}
 	}
 
+	// читаем scp source
+	scpData := []byte{}
+	if c.SCPSource() != "" {
+		if data, err := ioutil.ReadFile(c.SCPSource()); err != nil {
+			fmt.Fprintf(os.Stderr, "Read source file error: %s\n", err.Error())
+			os.Exit(2)
+		} else {
+			scpData = data
+		}
+	}
+
 	hosts := make([]*hostState, 0)
 	for connectionAddress, visibleHostName := range c.Hosts() {
 		formatedVisibleHostName := connectionAddress
@@ -51,6 +67,8 @@ func Run(c config) {
 			formatedVisibleHostName = fmt.Sprintf("%s <%s>", visibleHostName, connectionAddress)
 		}
 		hosts = append(hosts, &hostState{
+			scpData:           scpData,
+			scpDest:           c.SCPDest(),
 			connectionAddress: connectionAddress,
 			visibleHostName:   formatedVisibleHostName,
 			command:           c.Command(),

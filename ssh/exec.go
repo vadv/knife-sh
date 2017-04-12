@@ -37,11 +37,6 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 			doneSession <- err
 			return
 		}
-		session, err = client.NewSession()
-		if err != nil {
-			doneSession <- err
-			return
-		}
 		doneSession <- nil
 	}()
 
@@ -61,24 +56,53 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 	connectedAt := time.Now()
 	h.connectedAt = &connectedAt
 
-	defer session.Close()
 	defer client.Close()
 
-	// здесь получили сессию, подготовимся для запуска
 	var stdoutPipe, stderrPipe io.Reader
+	var stdinPipe io.WriteCloser
+
+	// загружаем файл аля scp
+	if h.scpDest != "" {
+		session, h.err = client.NewSession()
+		if err != nil {
+			return
+		}
+		if stdinPipe, h.err = session.StdinPipe(); err != nil {
+			return
+		}
+		go func() { session.Run("tee " + h.scpDest) }()
+		bt, err := stdinPipe.Write(h.scpData)
+		session.Close()
+		stdinPipe.Close()
+		// проверяем ошибки
+		if err != nil && err != io.EOF {
+			h.err = fmt.Errorf("SCP: write error %s", err.Error())
+			return
+		}
+		if bt != len(h.scpData) {
+			h.err = fmt.Errorf("SCP: write %d bytes, except %d bytes", bt, len(h.scpData))
+			return
+		}
+	}
+
+	// стартуем комманду
+	session, h.err = client.NewSession()
+	if err != nil {
+		return
+	}
+	defer session.Close()
 	if h.err = session.RequestPty("xterm", 80, 40, ssh.TerminalModes{ssh.ECHO: 0}); h.err != nil {
 		return
 	}
 	if stdoutPipe, h.err = session.StdoutPipe(); h.err != nil {
 		return
 	}
-	if stderrPipe, err = session.StderrPipe(); err != nil {
+	if stderrPipe, h.err = session.StderrPipe(); err != nil {
 		return
 	}
 	go pipeFeeder(h.visibleHostName+"\t\t", stdoutPipe, stdout)
 	go pipeFeeder(h.visibleHostName+"\t\t", stderrPipe, stderr)
 
-	// стартуем комманду
 	if h.err = session.Start(h.command); h.err != nil {
 		return
 	}

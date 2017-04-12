@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
@@ -18,6 +19,8 @@ type Config struct {
 	// chef settings
 	chefClient, chefKey string
 	chefUrl, chefAttr   string
+	// copy file
+	scpSource, scpDest string
 	// host input
 	hostSource string
 	// default variables
@@ -109,6 +112,18 @@ func (c *Config) set(key, val string) error {
 
 	case "chef-attribute", "chef-attr":
 		c.chefAttr = val
+
+	case "copy-file":
+		data := strings.Split(val, ":")
+		if len(data) != 2 {
+			return fmt.Errorf("bad format for scp. excepted: `source:dest` get: `%s`", val)
+		}
+		c.scpSource, c.scpDest = data[0], data[1]
+		if stat, err := os.Stat(c.scpSource); err != nil {
+			return err
+		} else {
+			fmt.Printf("File for coping `%s` has size `%d bytes`.\n", c.SCPSource(), stat.Size())
+		}
 
 	default:
 		return fmt.Errorf("Unknown key: `%s`", key)

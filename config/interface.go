@@ -27,3 +27,11 @@ func (c *Config) SshKeyContent() string {
 func (c *Config) SshUser() string {
 	return c.sshUser
 }
+
+func (c *Config) SCPSource() string {
+	return c.scpSource
+}
+
+func (c *Config) SCPDest() string {
+	return c.scpDest
+}
