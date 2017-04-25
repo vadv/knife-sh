@@ -90,6 +90,7 @@ func (config *Config) parseCli() {
 
 		case "-s", "--stop-on-first-error", "--stop-on-error":
 			setConfig("stop-on-error", "true")
+			skipNextArg = false
 
 		case "-h", "--help":
 			printHelpAndExit(fmt.Errorf("Help:"))
