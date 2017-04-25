@@ -35,3 +35,7 @@ func (c *Config) SCPSource() string {
 func (c *Config) SCPDest() string {
 	return c.scpDest
 }
+
+func (c *Config) StopOnFirstError() bool {
+	return c.stopOnFirstError
+}

@@ -16,6 +16,7 @@ func printHelpAndExit(err error) {
 	fmt.Printf("\t-i, --identity-file IDENTITY_FILE,\tdefault: %v\n", config.defaultSshKeyPath)
 	fmt.Printf("\t-t, --ssh-timeout SSH TIMEOUT(s)\tThe ssh connection timeout, default: %d\n", config.timeoutSshConnect)
 	fmt.Printf("\t-e, --execution-timeout EXECUTION TIMEOUT(s)\tThe command execution timeout, default: %d\n", config.timeoutExec)
+	fmt.Printf("\t-s, --stop-on-error\tStop on first error, default: %s\n", "false")
 	fmt.Printf("\t-c, --copy-file\tCopy file before execution, format: 'local-source:remote-destination'\n")
 	fmt.Printf("\t    --chef-client CHEF CLIENT\tChef client name, default: %v\n", config.chefClient)
 	fmt.Printf("\t    --chef-certificate CERT FILE\t Path to client certificate, default: %v\n", config.defaultchefKeyPath)
@@ -86,6 +87,9 @@ func (config *Config) parseCli() {
 
 		case "-e", "--timeout-exec", "--timeout-execution", "--execution-timeout":
 			setConfig("timeout-exec", getNextArg(args, i))
+
+		case "-s", "--stop-on-first-error", "--stop-on-error":
+			setConfig("stop-on-error", "true")
 
 		case "-h", "--help":
 			printHelpAndExit(fmt.Errorf("Help:"))

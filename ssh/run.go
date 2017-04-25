@@ -36,6 +36,7 @@ type config interface {
 	Concurrency() int64
 	SCPSource() string
 	SCPDest() string
+	StopOnFirstError() bool
 }
 
 func Run(c config) {
@@ -100,13 +101,21 @@ func Run(c config) {
 		os.Exit(1)
 	}()
 
+	stopOnFirstError := c.StopOnFirstError()
 	var wg sync.WaitGroup
 	limit := make(chan struct{}, c.Concurrency())
+	skipExecNew := false
 	for _, h := range hosts {
+		if skipExecNew {
+			continue
+		}
 		limit <- struct{}{}
 		wg.Add(1)
 		go func(h *hostState) {
 			h.exec(sshConfig, stdout, stderr)
+			if stopOnFirstError && h.err != nil {
+				skipExecNew = true // позволит нам дождаться уже запущенных и пропустить создание новых
+			}
 			defer wg.Done()
 			defer func() { <-limit }()
 		}(h)

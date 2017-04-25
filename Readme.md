@@ -14,6 +14,7 @@ knife-sh HOSTS COMMAND (options)
     -i, --identity-file IDENTITY_FILE,      default: /home/vadv/.ssh/id_rsa
     -t, --ssh-timeout SSH TIMEOUT(s)        The ssh connection timeout, default: 10
     -e, --execution-timeout EXECUTION TIMEOUT(s)    The command execution timeout, default: 0
+    -s, --stop-on-first-error false|true    Exit on first error, default: false
     -c, --copy-file Copy file before execution, format: 'local-source:remote-destination'
     -c, --chef-client CHEF CLIENT   Chef client name, default: user
         --chef-certificate CERT FILE     Path to client certificate, default: /home/user/.chef/user.pem

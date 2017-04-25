@@ -15,6 +15,7 @@ type Config struct {
 	concurrency       int64
 	timeoutSshConnect int64
 	timeoutExec       int64
+	stopOnFirstError  bool
 	hosts             map[string]string // connectionAddress:visibleName
 	// chef settings
 	chefClient, chefKey string
@@ -51,6 +52,7 @@ func getDefaultConfig() *Config {
 		timeoutExec:        0,
 		timeoutSshConnect:  10,
 		concurrency:        100,
+		stopOnFirstError:   false,
 		hosts:              make(map[string]string, 0),
 		defaultSshKeyPath:  filepath.Join(home, ".ssh", "id_rsa"),
 		defaultchefKeyPath: filepath.Join(home, ".chef", fmt.Sprintf("%s.pem", user)),
@@ -112,6 +114,9 @@ func (c *Config) set(key, val string) error {
 
 	case "chef-attribute", "chef-attr":
 		c.chefAttr = val
+
+	case "stop-on-first-error", "stop-on-error":
+		c.stopOnFirstError = (strings.ToLower(val) == "true")
 
 	case "copy-file":
 		data := strings.Split(val, ":")
