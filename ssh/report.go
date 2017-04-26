@@ -2,6 +2,7 @@ package ssh
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"sort"
 	"time"
@@ -43,21 +44,25 @@ func report(hosts []*hostState) {
 
 	// подсчет
 	var count, succ, notStarted, connFailed, execFailed int
+	badHosts := ""
 	for _, h := range sortedHostStates.slice {
 		count++
 		if h.startedAt == nil {
 			notStarted++
 			fmt.Fprintf(os.Stderr, "%s\t\t%v\n", h.visibleHostName, "< not started >")
+			badHosts += h.connectionAddress + "\n"
 			continue
 		}
 		if h.connectedAt == nil {
 			connFailed++
 			fmt.Fprintf(os.Stderr, "%s\t\t%v\t%v\n", h.visibleHostName, h.err, "< not connected >")
+			badHosts += h.connectionAddress + "\n"
 			continue
 		}
 		if h.endedAt == nil {
-			fmt.Fprintf(os.Stderr, "%s\t\t%v,\t< time %v >\n", h.visibleHostName, h.err, h.connectedAt.Sub(*h.startedAt))
 			execFailed++
+			fmt.Fprintf(os.Stderr, "%s\t\t%v,\t< time %v >\n", h.visibleHostName, h.err, h.connectedAt.Sub(*h.startedAt))
+			badHosts += h.connectionAddress + "\n"
 			continue
 		}
 		if h.err == nil {
@@ -65,6 +70,7 @@ func report(hosts []*hostState) {
 			succ++
 		} else {
 			fmt.Fprintf(os.Stderr, "%s\t\t%v,\t< time: %v >\n", h.visibleHostName, h.err, h.endedAt.Sub(*h.startedAt))
+			badHosts += h.connectionAddress + "\n"
 		}
 	}
 
@@ -74,6 +80,12 @@ func report(hosts []*hostState) {
 		fmt.Fprintf(os.Stdout, "Total: %v Success: %v\n", count, succ)
 	} else {
 		fmt.Fprintf(os.Stderr, "Total: %d Success: %d Connect failed: %d Execute failed: %d\n", count, succ, connFailed+notStarted, execFailed)
+		if file, err := ioutil.TempFile(os.TempDir(), "knife-sh"); err == nil {
+			file.WriteString(badHosts)
+			fmt.Fprintf(os.Stderr, "File with bad hosts: %s\n", file.Name())
+			file.Sync()
+			file.Close()
+		}
 		os.Exit(count - succ)
 	}
 }
