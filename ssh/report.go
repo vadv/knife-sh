@@ -80,7 +80,7 @@ func report(hosts []*hostState) {
 		fmt.Fprintf(os.Stdout, "Total: %v Success: %v\n", count, succ)
 	} else {
 		fmt.Fprintf(os.Stderr, "Total: %d Success: %d Connect failed: %d Execute failed: %d\n", count, succ, connFailed+notStarted, execFailed)
-		if file, err := ioutil.TempFile(os.TempDir(), "knife-sh"); err == nil {
+		if file, err := ioutil.TempFile(os.TempDir(), "knife-sh-"); err == nil {
 			file.WriteString(badHosts)
 			fmt.Fprintf(os.Stderr, "File with bad hosts: %s\n", file.Name())
 			file.Sync()
