@@ -1,14 +1,14 @@
 ## Install
 ```
 GOPATH=/tmp/gopath go get -u github.com/vadv/knife-sh
-sudo cp /tmp/gopath/bin/knife-sh /usr/local/bin/knife-sh
+sudo install /tmp/gopath/bin/knife-sh /usr/local/bin/knife-sh
 ```
 
 ## Howto use
 ```
 Help:
 knife-sh HOSTS COMMAND (options)
-    HOST is 'host1 host2' or /path/to/ip.txt or CHEF:QUERY or - for STDIN
+    HOSTS is 'host1 host2' or /path/to/ip.txt or CHEF:QUERY or - for STDIN
     -C, --concurrency NUM   The number of concurrent connections, default: 100
     -x, --ssh-user USERNAME The ssh username, default: vadv
     -i, --identity-file IDENTITY_FILE,      default: /home/vadv/.ssh/id_rsa
