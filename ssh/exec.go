@@ -72,16 +72,22 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 		}
 		go func() { session.Run("tee " + h.scpDest) }()
 		time.Sleep(time.Second)
-		bt, err := fmt.Fprintf(stdinPipe, "%s", h.scpData)
-		session.Close()
-		stdinPipe.Close()
+		writed, err := fmt.Fprintf(stdinPipe, "%s", h.scpData)
+		if err := session.Close(); err != nil {
+			h.err = fmt.Errorf("SCP: close session error %s", err.Error())
+			return
+		}
+		if err := stdinPipe.Close(); err != nil {
+			h.err = fmt.Errorf("SCP: close pipe error %s", err.Error())
+			return
+		}
 		// проверяем ошибки
 		if err != nil && err != io.EOF {
 			h.err = fmt.Errorf("SCP: write error %s", err.Error())
 			return
 		}
-		if bt != len(h.scpData) {
-			h.err = fmt.Errorf("SCP: write %d bytes, except %d bytes", bt, len(h.scpData))
+		if writed != len(h.scpData) {
+			h.err = fmt.Errorf("SCP: write %d bytes, except %d bytes", writed, len(h.scpData))
 			return
 		}
 	}
