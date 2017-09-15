@@ -72,14 +72,9 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 		}
 		go func() { session.Run("tee " + h.scpDest) }()
 		time.Sleep(time.Second)
-		w, err := session.StdinPipe()
-		if err != nil {
-			h.err = fmt.Errorf("SCP: init error %s", err.Error())
-			return
-		}
-		bt, err := fmt.Fprintf(w, "%s", h.scpData)
+		bt, err := fmt.Fprintf(stdinPipe, "%s", h.scpData)
 		session.Close()
-		w.Close()
+		stdinPipe.Close()
 		// проверяем ошибки
 		if err != nil && err != io.EOF {
 			h.err = fmt.Errorf("SCP: write error %s", err.Error())
