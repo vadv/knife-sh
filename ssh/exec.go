@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -70,8 +71,14 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 		if stdinPipe, h.err = session.StdinPipe(); err != nil {
 			return
 		}
-		go func() { session.Run("tee " + h.scpDest) }()
+		remoteDir, remoteFile := filepath.Dir(h.scpDest), filepath.Base(h.scpDest)
+		go func() { session.Run("scp -t " + remoteDir) }()
 		time.Sleep(50 * time.Millisecond)
+		_, err := fmt.Fprintf(stdinPipe, "C0644 %d %s\n", len(h.scpDest), remoteFile)
+		if err != nil && err != io.EOF {
+			h.err = fmt.Errorf("SCP: create file error: %s", err.Error())
+			return
+		}
 		size, err := fmt.Fprintf(stdinPipe, "%s", h.scpData)
 		session.Signal(ssh.SIGQUIT)
 		if err != nil && err != io.EOF {
