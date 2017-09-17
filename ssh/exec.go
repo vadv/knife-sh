@@ -74,7 +74,7 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 		remoteDir, remoteFile := filepath.Dir(h.scpDest), filepath.Base(h.scpDest)
 		go func() { session.Run("scp -t " + remoteDir) }()
 		time.Sleep(50 * time.Millisecond)
-		_, err := fmt.Fprintf(stdinPipe, "C0644 %d %s\n", len(h.scpDest), remoteFile)
+		_, err := fmt.Fprintf(stdinPipe, "C0644 %d %s\n", len(h.scpData), remoteFile)
 		if err != nil && err != io.EOF {
 			h.err = fmt.Errorf("SCP: create file error: %s", err.Error())
 			return
