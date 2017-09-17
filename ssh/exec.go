@@ -79,7 +79,7 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 			h.err = fmt.Errorf("SCP: create file error: %s", err.Error())
 			return
 		}
-		_, err := fmt.Fprintf(stdinPipe, "%s", h.scpData)
+		_, err = fmt.Fprintf(stdinPipe, "%s", h.scpData)
 		if err != nil && err != io.EOF {
 			h.err = fmt.Errorf("SCP: write error: %s", err.Error())
 			return
