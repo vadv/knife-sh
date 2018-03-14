@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -71,6 +72,15 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 		if stdinPipe, h.err = session.StdinPipe(); err != nil {
 			return
 		}
+		// SendEnv
+		if lang := os.Getenv(`LANG`); lang != `` {
+			session.Setenv(`LANG`, lang)
+		}
+		for _, env := range os.Environ() {
+			if strings.HasPrefix(env, `LC_`) {
+				session.Setenv(env, os.Getenv(env))
+			}
+		}
 		remoteDir, remoteFile := filepath.Dir(h.scpDest), filepath.Base(h.scpDest)
 		go func() { session.Run("scp -t " + remoteDir) }()
 		time.Sleep(50 * time.Millisecond)
@@ -100,6 +110,15 @@ func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- stri
 	}
 	if stderrPipe, h.err = session.StderrPipe(); err != nil {
 		return
+	}
+	// SendEnv
+	if lang := os.Getenv(`LANG`); lang != `` {
+		session.Setenv(`LANG`, lang)
+	}
+	for _, env := range os.Environ() {
+		if strings.HasPrefix(env, `LC_`) {
+			session.Setenv(env, os.Getenv(env))
+		}
 	}
 	go pipeFeeder(h.visibleHostName+"\t\t", stdoutPipe, stdout)
 	go pipeFeeder(h.visibleHostName+"\t\t", stderrPipe, stderr)
