@@ -17,7 +17,8 @@ func (config *Config) buildHosts() {
 			if h == `` {
 				continue
 			}
-			config.hosts[h] = h
+			config.connectionAddrHosts = append(config.connectionAddrHosts, h)
+			config.humanReadableHosts = append(config.humanReadableHosts, h)
 		}
 	}
 

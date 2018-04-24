@@ -27,7 +27,7 @@ type hostState struct {
 }
 
 type config interface {
-	Hosts() map[string]string
+	Hosts() ([]string, []string)
 	ConnectTimeout() int64
 	ExecTimeout() int64
 	SshKeyContent() string
@@ -62,11 +62,11 @@ func Run(c config) {
 	}
 
 	hosts := make([]*hostState, 0)
-	for connectionAddress, visibleHostName := range c.Hosts() {
+	addrSlice, visibleSlice := c.Hosts()
+	for i, addr := range addrSlice {
+		connectionAddress, visibleHostName := addr, visibleSlice[i]
 		formatedVisibleHostName := connectionAddress
-		if formatedVisibleHostName != visibleHostName {
-			formatedVisibleHostName = fmt.Sprintf("%s <%s>", visibleHostName, connectionAddress)
-		}
+		formatedVisibleHostName = fmt.Sprintf("%s <%s>", visibleHostName, connectionAddress)
 		hosts = append(hosts, &hostState{
 			scpData:           scpData,
 			scpDest:           c.SCPDest(),

@@ -10,13 +10,14 @@ import (
 )
 
 type Config struct {
-	sshUser, sshKey   string
-	command           string
-	concurrency       int64
-	timeoutSshConnect int64
-	timeoutExec       int64
-	stopOnFirstError  bool
-	hosts             map[string]string // connectionAddress:visibleName
+	sshUser, sshKey     string
+	command             string
+	concurrency         int64
+	timeoutSshConnect   int64
+	timeoutExec         int64
+	stopOnFirstError    bool
+	connectionAddrHosts []string
+	humanReadableHosts  []string
 	// chef settings
 	chefClient, chefKey string
 	chefUrl, chefAttr   string
@@ -45,18 +46,19 @@ func getDefaultConfig() *Config {
 	home := os.Getenv("HOME")
 	user := os.Getenv("USER")
 	config := &Config{
-		sshUser:            user,
-		chefClient:         user,
-		chefAttr:           "fqdn",
-		chefUrl:            "https://chef.itv.restr.im/organizations/restream/",
-		timeoutExec:        0,
-		timeoutSshConnect:  10,
-		concurrency:        100,
-		stopOnFirstError:   false,
-		hosts:              make(map[string]string, 0),
-		defaultSshKeyPath:  filepath.Join(home, ".ssh", "id_rsa"),
-		defaultchefKeyPath: filepath.Join(home, ".chef", fmt.Sprintf("%s.pem", user)),
-		defaultConfigPath:  filepath.Join(home, ".knife-sh.rc"),
+		sshUser:             user,
+		chefClient:          user,
+		chefAttr:            "fqdn",
+		chefUrl:             "https://chef.itv.restr.im/organizations/restream/",
+		timeoutExec:         0,
+		timeoutSshConnect:   10,
+		concurrency:         100,
+		stopOnFirstError:    false,
+		connectionAddrHosts: make([]string, 0),
+		humanReadableHosts:  make([]string, 0),
+		defaultSshKeyPath:   filepath.Join(home, ".ssh", "id_rsa"),
+		defaultchefKeyPath:  filepath.Join(home, ".chef", fmt.Sprintf("%s.pem", user)),
+		defaultConfigPath:   filepath.Join(home, ".knife-sh.rc"),
 	}
 	return config
 }

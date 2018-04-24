@@ -1,7 +1,7 @@
 package config
 
-func (c *Config) Hosts() map[string]string {
-	return c.hosts
+func (c *Config) Hosts() ([]string, []string) {
+	return c.connectionAddrHosts, c.humanReadableHosts
 }
 
 func (c *Config) ConnectTimeout() int64 {

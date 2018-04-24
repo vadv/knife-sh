@@ -43,7 +43,7 @@ func (config *Config) fetchHostsFromChef(q string) error {
 		return err
 	}
 
-	for _, row := range res.Rows {
+	for count, row := range res.Rows {
 		// row = {"url": "http://chef/node", "data": {"chefAttr": "<response>"}}
 		line, ok := row.(map[string]interface{})
 		if !ok {
@@ -70,11 +70,12 @@ func (config *Config) fetchHostsFromChef(q string) error {
 			fmt.Fprintf(os.Stderr, "Empty fqdn from chef: %#v\n", data)
 			os.Exit(1)
 		}
-		config.hosts[fmt.Sprintf("%v", chefAttr)] = fmt.Sprintf("%v", fqdn)
+		config.connectionAddrHosts = append(config.connectionAddrHosts, fmt.Sprintf("[%d] %v", count, chefAttr))
+		config.humanReadableHosts = append(config.humanReadableHosts, fmt.Sprintf("%v", fqdn))
 	}
 
-	fmt.Fprintf(os.Stderr, "Chef search return %d items\n", len(config.hosts))
-	if len(config.hosts) == 0 {
+	fmt.Fprintf(os.Stderr, "Chef search return %d items\n", len(config.connectionAddrHosts))
+	if len(config.connectionAddrHosts) == 0 {
 		os.Exit(1)
 	}
 
