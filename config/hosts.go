@@ -13,12 +13,12 @@ import (
 func (config *Config) buildHosts() {
 
 	fromString := func(source, sep string) {
-		for _, h := range strings.Split(source, sep) {
+		for count, h := range strings.Split(source, sep) {
 			if h == `` {
 				continue
 			}
 			config.connectionAddrHosts = append(config.connectionAddrHosts, h)
-			config.humanReadableHosts = append(config.humanReadableHosts, h)
+			config.humanReadableHosts = append(config.humanReadableHosts, fmt.Sprintf("%s <%d>", h, count))
 		}
 	}
 
