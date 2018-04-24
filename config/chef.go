@@ -70,8 +70,8 @@ func (config *Config) fetchHostsFromChef(q string) error {
 			fmt.Fprintf(os.Stderr, "Empty fqdn from chef: %#v\n", data)
 			os.Exit(1)
 		}
-		config.connectionAddrHosts = append(config.connectionAddrHosts, fmt.Sprintf("[%d] %v", count, chefAttr))
-		config.humanReadableHosts = append(config.humanReadableHosts, fmt.Sprintf("%v", fqdn))
+		config.connectionAddrHosts = append(config.connectionAddrHosts, fmt.Sprintf("%v", chefAttr))
+		config.humanReadableHosts = append(config.humanReadableHosts, fmt.Sprintf("%v <%d>", fqdn, count))
 	}
 
 	fmt.Fprintf(os.Stderr, "Chef search return %d items\n", len(config.connectionAddrHosts))
