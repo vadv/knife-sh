@@ -129,7 +129,7 @@ func (c *Config) set(key, val string) error {
 		if stat, err := os.Stat(c.scpSource); err != nil {
 			return err
 		} else {
-			fmt.Printf("File for coping `%s` has size `%d bytes`.\n", c.SCPSource(), stat.Size())
+			fmt.Fprintf(os.Stderr, "File for coping `%s` has size `%d bytes`.\n", c.SCPSource(), stat.Size())
 		}
 
 	default:
