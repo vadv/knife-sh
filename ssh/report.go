@@ -37,7 +37,7 @@ func report(hosts []*hostState) {
 
 	time.Sleep(1 * time.Second)
 
-	fmt.Fprintf(os.Stdout, "--- Report --------------------------------\n")
+	fmt.Fprintf(os.Stderr, "--- Report --------------------------------\n")
 
 	sortedHostStates := &sortHostStates{slice: hosts}
 	sort.Sort(sortedHostStates)
@@ -75,7 +75,7 @@ func report(hosts []*hostState) {
 	}
 
 	// подвал
-	fmt.Fprintf(os.Stdout, "--------------------------------\n")
+	fmt.Fprintf(os.Stderr, "--------------------------------\n")
 	if notStarted == 0 && connFailed == 0 && execFailed == 0 {
 		fmt.Fprintf(os.Stderr, "Total: %v Success: %v\n", count, succ)
 	} else {

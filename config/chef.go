@@ -32,7 +32,7 @@ func (config *Config) fetchHostsFromChef(q string) error {
 		return err
 	}
 
-	fmt.Printf("Start chef `%s` search query: `%s`\n", config.chefUrl, q)
+	fmt.Fprintf(os.Stderr, "Start chef `%s` search query: `%s`\n", config.chefUrl, q)
 
 	part := make(map[string]interface{})
 	part["chefAttr"] = []string{config.chefAttr}
