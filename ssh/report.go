@@ -66,7 +66,7 @@ func report(hosts []*hostState) {
 			continue
 		}
 		if h.err == nil {
-			fmt.Printf("%s\t\t%v,\t< time %v >\n", h.visibleHostName, "< successfully completed >", h.endedAt.Sub(*h.startedAt))
+			fmt.Fprintf(os.Stderr, "%s\t\t%v,\t< time %v >\n", h.visibleHostName, "< successfully completed >", h.endedAt.Sub(*h.startedAt))
 			succ++
 		} else {
 			fmt.Fprintf(os.Stderr, "%s\t\t%v,\t< time: %v >\n", h.visibleHostName, h.err, h.endedAt.Sub(*h.startedAt))
@@ -77,7 +77,7 @@ func report(hosts []*hostState) {
 	// подвал
 	fmt.Fprintf(os.Stdout, "--------------------------------\n")
 	if notStarted == 0 && connFailed == 0 && execFailed == 0 {
-		fmt.Fprintf(os.Stdout, "Total: %v Success: %v\n", count, succ)
+		fmt.Fprintf(os.Stderr, "Total: %v Success: %v\n", count, succ)
 	} else {
 		fmt.Fprintf(os.Stderr, "Total: %d Success: %d Connect failed: %d Execute failed: %d\n", count, succ, connFailed+notStarted, execFailed)
 		if file, err := ioutil.TempFile(os.TempDir(), "knife-sh-"); err == nil {
