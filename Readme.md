@@ -30,4 +30,9 @@ chef-certificate /Users/username/.chef/admin.pem
 chef-client admin
 chef-attribute ipaddress
 ssh-user root
+
+# proxy option
+jump-ssh-host 192.168.0.1:22
+jump-ssh-user admin
+jump-ssh-key <path to identity key >
 ```

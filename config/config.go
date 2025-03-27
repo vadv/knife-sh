@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -29,6 +30,17 @@ type Config struct {
 	defaultConfigPath  string
 	defaultSshKeyPath  string
 	defaultchefKeyPath string
+
+	// Proxy ssh Host
+	jumpSshHost string
+	jumpSshPort uint16
+	// Proxy ssh AuthKey
+	jumpSshKey string
+	// Proxy ssh User
+	jumpSshUser string
+	// Proxy ssh UserPassword
+	jumpSshPass    string
+	JumpSshEnabled bool
 }
 
 func New() *Config {
@@ -59,6 +71,11 @@ func getDefaultConfig() *Config {
 		defaultSshKeyPath:   filepath.Join(home, ".ssh", "id_rsa"),
 		defaultchefKeyPath:  filepath.Join(home, ".chef", fmt.Sprintf("%s.pem", user)),
 		defaultConfigPath:   filepath.Join(home, ".knife-sh.rc"),
+		jumpSshHost:         "",
+		jumpSshPort:         22,
+		jumpSshKey:          "",
+		jumpSshUser:         user,
+		jumpSshPass:         "",
 	}
 	return config
 }
@@ -132,9 +149,35 @@ func (c *Config) set(key, val string) error {
 			fmt.Fprintf(os.Stderr, "File for coping `%s` has size `%d bytes`.\n", c.SCPSource(), stat.Size())
 		}
 
+	// enabled use jump host
+	case "jump-ssh-enabled":
+		c.JumpSshEnabled = val == "true"
+	// settings jump connection
+	case "jump-ssh-host":
+		c.jumpSshHost = val
+		if c.jumpSshHost != "" {
+			addr, err := netip.ParseAddrPort(val)
+			if err != nil {
+				return err
+			}
+			if addr.Port() == 0 {
+				c.jumpSshPort = addr.Port()
+			}
+			c.jumpSshHost = addr.Addr().String()
+		}
+	case "jump-ssh-user":
+		c.jumpSshUser = val
+	case "jump-ssh-pass":
+		return fmt.Errorf("Don't save jump-ssh-pass in config, it's not secure")
+	case "jump-ssh-key", "jump-identity-file", "jump-identity":
+		data, err := ioutil.ReadFile(val)
+		if err != nil {
+			return err
+		}
+		c.jumpSshKey = string(data)
+
 	default:
 		return fmt.Errorf("Unknown key: `%s`", key)
-
 	}
 
 	return nil

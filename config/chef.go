@@ -2,10 +2,9 @@ package config
 
 import (
 	"fmt"
+	"github.com/vadv/knife-sh/src/github.com/vadv/chef"
 	"io/ioutil"
 	"os"
-
-	"github.com/vadv/chef"
 )
 
 // load hosts from chef
@@ -21,7 +20,6 @@ func (config *Config) fetchHostsFromChef(q string) error {
 			os.Exit(1)
 		}
 	}
-
 	client, err := chef.NewClient(&chef.Config{
 		SkipSSL: true,
 		Name:    config.chefClient,
