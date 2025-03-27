@@ -1,3 +1,5 @@
+.idea/*
+knife-sh
 bin
 pkg
 assets

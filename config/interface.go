@@ -1,5 +1,7 @@
 package config
 
+import "fmt"
+
 func (c *Config) Hosts() ([]string, []string) {
 	return c.connectionAddrHosts, c.humanReadableHosts
 }
@@ -38,4 +40,15 @@ func (c *Config) SCPDest() string {
 
 func (c *Config) StopOnFirstError() bool {
 	return c.stopOnFirstError
+}
+
+func (c *Config) JumpEnabled() bool { return c.JumpSshEnabled }
+func (c *Config) JumpSshConnectString() string {
+	return fmt.Sprintf("%s:%d", c.jumpSshHost, c.jumpSshPort)
+}
+func (c *Config) JumpSshUser() string {
+	return c.jumpSshUser
+}
+func (c *Config) JumpSshKeyContent() string {
+	return c.jumpSshKey
 }

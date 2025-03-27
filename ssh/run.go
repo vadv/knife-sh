@@ -2,7 +2,9 @@ package ssh
 
 import (
 	"fmt"
+	"golang.org/x/term"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/signal"
 	"sync"
@@ -37,6 +39,11 @@ type config interface {
 	SCPSource() string
 	SCPDest() string
 	StopOnFirstError() bool
+
+	JumpEnabled() bool
+	JumpSshConnectString() string
+	JumpSshUser() string
+	JumpSshKeyContent() string
 }
 
 func Run(c config) {
@@ -105,6 +112,12 @@ func Run(c config) {
 	var wg sync.WaitGroup
 	limit := make(chan struct{}, c.Concurrency())
 	skipExecNew := false
+
+	bClient, err := BastionConnection(c)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for _, h := range hosts {
 		if skipExecNew {
 			continue
@@ -112,7 +125,7 @@ func Run(c config) {
 		limit <- struct{}{}
 		wg.Add(1)
 		go func(h *hostState) {
-			h.exec(sshConfig, stdout, stderr)
+			h.exec(sshConfig, stdout, stderr, bClient)
 			if stopOnFirstError && h.err != nil {
 				skipExecNew = true // позволит нам дождаться уже запущенных и пропустить создание новых
 			}
@@ -124,4 +137,32 @@ func Run(c config) {
 	wg.Wait()
 	report(hosts)
 
+}
+
+func BastionConnection(c config) (*ssh.Client, error) {
+	if !c.JumpEnabled() {
+		return nil, nil
+	}
+	sshConfig := &ssh.ClientConfig{
+		User:            c.JumpSshUser(),
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+	if len(c.JumpSshKeyContent()) > 0 {
+		fmt.Printf("Connect to jumpHoset(%s) via ssh-key...\n", c.JumpSshConnectString())
+		sshConfig.Auth = []ssh.AuthMethod{ssh.PublicKeys(makeSignersFromKey(c)...)}
+	} else {
+		fmt.Printf("Connect to jumpHoset(%s) via ssh-user_pass...\n", c.JumpSshConnectString())
+		fmt.Print("Please enter your jump password: ")
+		password, err := term.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return nil, err
+		}
+		fmt.Printf("\n")
+		sshConfig.Auth = []ssh.AuthMethod{ssh.Password(string(password))}
+	}
+	bClient, err := ssh.Dial("tcp", c.JumpSshConnectString(), sshConfig)
+	if err != nil {
+		return nil, err
+	}
+	return bClient, nil
 }

@@ -13,6 +13,7 @@ func printHelpAndExit(err error) {
 	fmt.Printf("\tHOST is 'host1 host2' or /path/to/ip.txt or CHEF:QUERY or - for STDIN\n")
 	fmt.Printf("\t-C, --concurrency NUM\tThe number of concurrent connections, default: %d\n", config.concurrency)
 	fmt.Printf("\t-x, --ssh-user USERNAME\tThe ssh username, default: %s\n", config.sshUser)
+	fmt.Printf("\t-j, --jump-ssh Bool\tThe enabled use jump(proxy) host over ssh, default: %b\n", config.JumpSshEnabled)
 	fmt.Printf("\t-i, --identity-file IDENTITY_FILE,\tdefault: %v\n", config.defaultSshKeyPath)
 	fmt.Printf("\t-t, --ssh-timeout SSH TIMEOUT(s)\tThe ssh connection timeout, default: %d\n", config.timeoutSshConnect)
 	fmt.Printf("\t-e, --execution-timeout EXECUTION TIMEOUT(s)\tThe command execution timeout, default: %d\n", config.timeoutExec)
@@ -81,7 +82,8 @@ func (config *Config) parseCli() {
 
 		case "-a", "--chef-attribute":
 			setConfig("chef-attribute", getNextArg(args, i))
-
+		case "-j", "--jump-ssh":
+			setConfig("jump-ssh-enabled", getNextArg(args, i))
 		case "-c", "--copy", "--copy-file":
 			setConfig("copy-file", getNextArg(args, i))
 

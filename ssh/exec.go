@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,14 +13,30 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- string) {
-
+func (h *hostState) exec(sshConfig *ssh.ClientConfig, stdout, stderr chan<- string, jump *ssh.Client) {
 	getSshClient := func(host string) (*ssh.Client, error) {
+		var client *ssh.Client
+		var err error
 		address := host
 		if strings.Index(host, `:`) == -1 {
 			address = fmt.Sprintf("%s:22", host)
 		}
-		client, err := ssh.Dial("tcp", address, sshConfig)
+		// if has jumo host (connection use jump)
+		if jump != nil {
+			var conn net.Conn
+			conn, err = jump.Dial("tcp", address)
+			if err != nil {
+				return nil, err
+			}
+			ncc, chans, reqs, err := ssh.NewClientConn(conn, address, sshConfig)
+			if err != nil {
+				return nil, err
+			}
+			client = ssh.NewClient(ncc, chans, reqs)
+			return client, nil
+		}
+
+		client, err = ssh.Dial("tcp", address, sshConfig)
 		if err != nil {
 			return nil, err
 		}
